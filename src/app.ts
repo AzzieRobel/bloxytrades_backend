@@ -36,7 +36,7 @@ app.use(errorHandler);
 export async function main() {
   const isConnected = await dbConnect();
   if (isConnected) {
-    app.listen(port, () => logger.info(`API listening on port ${port}`));
+    app.listen(port, () => logger.info(`Server is running on port ${port}`));
   } else {
     logger.error('Failed to connect to MongoDB');
   }
