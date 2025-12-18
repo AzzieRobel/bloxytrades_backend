@@ -9,8 +9,8 @@ export class BasicDataAccess<T = any> {
         return await this.model.create(data);
     }
 
-    async findById(id: string, data?: any, options?: Record<string, any>): Promise<T | null> {
-        return await this.model.findById(id, data, options);
+    async findById( id: string , data?: any, options?: Record<string, any>): Promise<T | null> {
+        return await this.model.findOne({ id }, data, options);
     }
 
     async findOne(filter: Partial<T>, data?: any, options?: Record<string, any>): Promise<T | null> {
@@ -21,8 +21,8 @@ export class BasicDataAccess<T = any> {
         return await this.model.find(filter, data, options);
     }
 
-    async updateById(id: string, data: Partial<T>, options: Record<string, any> = { new: true }): Promise<T | null> {
-        return await this.model.findByIdAndUpdate(id, data, options);
+    async updateById( id: string , data: Partial<T>, options: Record<string, any> = { new: true }): Promise<T | null> {
+        return await this.model.findOneAndUpdate({ id }, data, options);
     }
 
     async findOneAndUpdate(
@@ -33,8 +33,8 @@ export class BasicDataAccess<T = any> {
         return await this.model.findOneAndUpdate(filter, data, options);
     }
 
-    async deleteById(id: string): Promise<T | null> {
-        return await this.model.findByIdAndDelete(id);
+    async deleteById( id: string ): Promise<T | null> {
+        return await this.model.findOneAndDelete({ id });
     }
 
     async deleteMany(filter: Partial<T>, options?: Record<string, any>): Promise<{ deletedCount?: number }> {

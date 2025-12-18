@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import { v4 as uuid } from 'uuid';
 
 import { config } from '../config';
 import { userDataAccess } from '../data-access';
@@ -14,7 +15,8 @@ export class AuthService {
       throw new Error('Email already in use');
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await userDataAccess.create({ username, email, passwordHash } as any);
+    const id = uuid()
+    const user = await userDataAccess.create({ id, username, email, passwordHash } as any);
     return this.buildAuthResponse(user);
   }
 

@@ -5,7 +5,8 @@ import { requireAuth } from '../middlewares/authMiddleware';
 const router = Router();
 
 router.get('/me', requireAuth, userController.getProfile);
-router.put('/me', requireAuth, userController.updateProfile);
+router.post('/update-profile', requireAuth, userController.updateProfile);
+router.post('/change-password', requireAuth, userController.changePassword);
 
 export default router;
 

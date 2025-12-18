@@ -1,16 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { UserService } from '../services/UserService';
+import { userService } from '../services';
 
-class UserController {
-  private userService: UserService;
-
-  constructor() {
-    this.userService = new UserService();
-  }
-
+export class UserController {
   public getProfile = async (req: Request, res: Response, _next: NextFunction) => {
     try {
-      const user = await this.userService.getProfile(req.user!.id);
+      const user = await userService.getProfile(req.user!.id);
       res.json({ user });
     } catch (error) {
       console.error('UserController.getProfile error:', error);
@@ -20,13 +14,23 @@ class UserController {
 
   public updateProfile = async (req: Request, res: Response, _next: NextFunction) => {
     try {
-      const user = await this.userService.updateProfile(req.user!.id, req.body);
-      res.json({ user });
+      const data = { newEmail: req.body.newEmail, newUsername: req.body.newUsername, id: req.body.id };
+      const user = await userService.updateProfile(data);
+      res.status(200).json({ user });
     } catch (error) {
       console.error('UserController.updateProfile error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-}
 
-export default UserController;
+  public changePassword = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const data = { id: req.body.id, currentPassword: req.body.currentPassword, newPassword: req.body.newPassword };
+      await userService.changePassword(data);
+      res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+      console.error('UserController.changePassword error:', error);
+      res.status(500).json({ message: 'Failed to change password' });
+    }
+  };
+}

@@ -1,5 +1,5 @@
 import { BasicDataAccess } from "./basic";
-import { Users } from "../models/User";
+import { Users } from "../models/Users";
 import { Buyers } from "../models/Buyer";
 import { Sellers } from "../models/Seller";
 import { Listings } from "../models/Listing";

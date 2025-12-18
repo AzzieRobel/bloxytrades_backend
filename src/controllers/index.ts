@@ -1,4 +1,4 @@
-import UserController from './userController';
+import { UserController } from './userController';
 import { AuthController } from './authController';
 import { ListingController } from './listingController';
 import { DisputeController } from './disputeController';

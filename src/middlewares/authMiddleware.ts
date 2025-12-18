@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+
 import { config } from '../config';
 
 declare module 'express-serve-static-core' {
@@ -26,9 +27,21 @@ export const attachRequestContext = (req: Request, res: Response, next: NextFunc
 };
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user || req.user.id === 'anonymous') {
-    return res.status(401).json({ message: 'Authentication required' });
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, config.jwtSecret) as { id: string, exp?: number };
+      req.body.id = decoded.id
+
+      next();
+      return;
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+  } else {
+    return res.status(401).json({ message: "No token provided" });
   }
-  next();
 };
 
