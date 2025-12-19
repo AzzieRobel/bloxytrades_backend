@@ -2,7 +2,8 @@ import { listingDataAccess } from '../data-access';
 
 export class ListingService {
   async listAll() {
-    return listingDataAccess.find();
+    // Only return active listings for public view
+    return listingDataAccess.find({ isActive: true } as any);
   }
 
   async listBySeller(sellerId: string) {
