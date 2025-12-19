@@ -8,10 +8,22 @@ export class ListingController {
     this.listingService = new ListingService();
   }
 
-  getListings = async (_req: Request, res: Response, _next: NextFunction) => {
+  getListings = async (req: Request, res: Response, _next: NextFunction) => {
     try {
-      const listings = await this.listingService.listAll();
-      res.json({ listings });
+      const { sort, limit, cursorCreatedAt, cursorId } = req.query;
+
+      const parsedLimitRaw =
+        typeof limit === 'string' ? parseInt(limit, 10) || 24 : 24;
+      const parsedLimit = Math.min(Math.max(parsedLimitRaw, 1), 100);
+
+      const data = await this.listingService.listAll({
+        sort: typeof sort === 'string' ? (sort as 'newest') : 'newest',
+        limit: parsedLimit,
+        cursorCreatedAt: typeof cursorCreatedAt === 'string' ? cursorCreatedAt : undefined,
+        cursorId: typeof cursorId === 'string' ? cursorId : undefined,
+      });
+
+      res.json(data);
     } catch (error) {
       console.error('ListingController.getListings error:', error);
       res.status(500).json({ message: 'Internal server error' });

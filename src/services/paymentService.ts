@@ -13,7 +13,7 @@ export const createPaymentIntent = async (amount: number, currency = 'USD') => {
 };
 
 export const createPaypalPayment = async (amount: number, currency = 'USD') => {
-  return new Promise((resolve, reject) => {
+  return new Promise<unknown>((resolve, reject) => {
     paypal.payment.create(
       {
         intent: 'sale',
@@ -24,7 +24,7 @@ export const createPaypalPayment = async (amount: number, currency = 'USD') => {
           cancel_url: 'https://example.com/cancel'
         }
       },
-      (error, payment) => {
+      (error: unknown, payment: unknown) => {
         if (error) reject(error);
         else resolve(payment);
       }

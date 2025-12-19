@@ -5,18 +5,27 @@ import { v4 as uuid } from 'uuid';
 
 import { config } from '../config';
 import { userDataAccess } from '../data-access';
+import { generateReferralCode } from '../utils/referral';
 
 const googleClient = new OAuth2Client(config.googleClientId || undefined);
 
 export class AuthService {
   async register(username: string, email: string, password: string) {
-    const existing = await userDataAccess.findOne({ email: email } as any);
-    if (existing)
+    const existing = await userDataAccess.findOne({ email: email.toLowerCase() } as any);
+    if (existing) {
       throw new Error('Email already in use');
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const id = uuid()
-    const user = await userDataAccess.create({ id, username, email, passwordHash } as any);
+    const id = uuid();
+    const referralCode = generateReferralCode();
+    const user = await userDataAccess.create({
+      id,
+      username,
+      email: email.toLowerCase(),
+      passwordHash,
+      referralCode,
+    } as any);
     return this.buildAuthResponse(user);
   }
 
@@ -27,7 +36,7 @@ export class AuthService {
     if (!user) throw new Error('Invalid email/username.');
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) throw new Error('Invalid password.');
-    if (user.banned) throw new Error('Your account has been banned. Please contact support.');
+    if (user.isBanned) throw new Error('Your account has been banned. Please contact support.');
     return this.buildAuthResponse(user);
   }
 
@@ -47,14 +56,17 @@ export class AuthService {
     const username = payload.name || email.split('@')[0];
 
     let user = await userDataAccess.findOne({ email } as any);
-    if (!user)
+    if (!user) {
+      const referralCode = generateReferralCode();
       user = await userDataAccess.create({
         email,
         username,
         passwordHash: '',
+        referralCode,
       } as any);
+    }
 
-    if (user.banned)
+    if (user.isBanned)
       throw new Error('User is banned');
 
     return this.buildAuthResponse(user);
@@ -69,7 +81,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
-        banned: user.banned,
+        isBanned: user.isBanned,
         createdAt: user.createdAt,
       },
     };
