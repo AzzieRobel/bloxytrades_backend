@@ -1,5 +1,7 @@
-import { listingDataAccess } from '../data-access';
+import { listingDataAccess, userDataAccess } from '../data-access';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
+import { generateReferralCode } from './referral';
 
 // Mockup data that looks like real Limiteds (unique names, prices, descriptions, quantities, and payment combos)
 const mockListings = [
@@ -167,8 +169,34 @@ const mockListings = [
   },
 ];
 
-// Default seller ID for seed data (you can change this or make it configurable)
-const DEFAULT_SEED_SELLER_ID = 'seed-seller-001';
+// Seed user for listings (will be created if doesn't exist)
+const SEED_USER_EMAIL = 'seed-seller@bloxytrade.com';
+const SEED_USER_USERNAME = 'seed_seller';
+
+async function getOrCreateSeedUser() {
+  // Try to find existing seed user
+  let seedUser = await userDataAccess.findOne({ email: SEED_USER_EMAIL } as any);
+  
+  if (!seedUser) {
+    // Create seed user if it doesn't exist
+    const passwordHash = await bcrypt.hash('seed-password-123', 10);
+    const userId = uuidv4();
+    const referralCode = generateReferralCode();
+    
+    seedUser = await userDataAccess.create({
+      id: userId,
+      username: SEED_USER_USERNAME,
+      email: SEED_USER_EMAIL,
+      passwordHash,
+      referralCode,
+      isVerifiedSeller: true,
+    } as any);
+    
+    console.log(`Created seed user: ${seedUser.id} (${seedUser.username})`);
+  }
+  
+  return seedUser;
+}
 
 export async function seedListings() {
   try {
@@ -182,10 +210,14 @@ export async function seedListings() {
 
     console.log('No listings found. Seeding database with mockup data...');
 
-    // Create listings with unique IDs
+    // Get or create seed user
+    const seedUser = await getOrCreateSeedUser();
+    const sellerId = seedUser.id;
+
+    // Create listings with unique IDs and proper user ID as sellerId
     const listingsToCreate = mockListings.map((listing) => ({
       id: uuidv4(),
-      sellerId: DEFAULT_SEED_SELLER_ID,
+      sellerId: sellerId,
       ...listing,
     }));
 
