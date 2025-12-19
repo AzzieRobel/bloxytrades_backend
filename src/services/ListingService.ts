@@ -70,12 +70,7 @@ export class ListingService {
     if (paymentClauses.length > 0) {
       filter = {
         ...baseFilter,
-        $and: [
-          { ...baseFilter },
-          {
-            $or: paymentClauses,
-          },
-        ],
+        $or: paymentClauses,
       };
     }
 
