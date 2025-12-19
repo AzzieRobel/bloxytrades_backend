@@ -8,7 +8,11 @@ export class OrderService {
       throw new Error('Listing not found');
     }
 
-    const price = listing.price;
+    // Extract price - handle both object and number formats
+    const priceValue = typeof listing.price === 'number' 
+      ? listing.price 
+      : (listing.price as any)?.usd || (listing.price as any)?.amount || 0;
+    const price = Number(priceValue);
     const fee = Math.round(price * 0.1 * 100) / 100; // 10% fee
 
     return orderDataAccess.create({

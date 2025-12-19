@@ -8,6 +8,7 @@ router.get('/', listingController.getListings);
 router.get('/mine', requireAuth, listingController.getMyListings);
 router.post('/', requireAuth, listingController.createListing);
 router.put('/:id', requireAuth, listingController.updateListing);
+router.delete('/:id', requireAuth, listingController.deleteListing);
 
 export default router;
 

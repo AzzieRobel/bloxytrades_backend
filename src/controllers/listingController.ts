@@ -49,5 +49,16 @@ export class ListingController {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+  deleteListing = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      await this.listingService.deleteListing(id);
+      res.json({ message: 'Listing deleted successfully' });
+    } catch (error) {
+      console.error('ListingController.deleteListing error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 }
 

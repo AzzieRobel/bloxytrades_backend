@@ -16,5 +16,9 @@ export class ListingService {
   async updateListing(id: string, payload: Record<string, unknown>) {
     return listingDataAccess.updateById(id, payload, { new: true });
   }
+
+  async deleteListing(id: string) {
+    return listingDataAccess.deleteById(id);
+  }
 }
 

@@ -1,14 +1,14 @@
-import { orderDataAccess, sellerDataAccess } from '../data-access';
+import { orderDataAccess, sellerProfileDataAccess } from '../data-access';
 
 export class SellerService {
   async getProfile(userId: string) {
-    return sellerDataAccess.findOne({ userId });
+    return sellerProfileDataAccess.findOne({ userId });
   }
 
   async upsertProfile(userId: string, payload: Record<string, unknown>) {
-    return sellerDataAccess.findOneAndUpdate(
+    return sellerProfileDataAccess.findOneAndUpdate(
       { userId } as any,
-      { userId, profile: payload } as any,
+      { userId, ...payload } as any,
       { upsert: true, new: true }
     );
   }
