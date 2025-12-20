@@ -132,12 +132,23 @@ export class ListingService {
     return listingDataAccess.find({ sellerId, isActive: true } as any);
   }
 
+  async listMyListings(sellerId: string) {
+    // Return all listings (active and inactive) for seller's own view
+    return listingDataAccess.find({ sellerId } as any, null, {
+      sort: { createdAt: -1 },
+    });
+  }
+
   async createListing(sellerId: string, payload: Record<string, unknown>) {
     return listingDataAccess.create({ ...payload, sellerId });
   }
 
   async updateListing(id: string, payload: Record<string, unknown>) {
     return listingDataAccess.updateById(id, payload, { new: true });
+  }
+
+  async getListingById(id: string) {
+    return listingDataAccess.findById(id);
   }
 
   async deleteListing(id: string) {

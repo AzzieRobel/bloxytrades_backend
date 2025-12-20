@@ -55,7 +55,7 @@ export class ListingController {
 
   getMyListings = async (req: Request, res: Response, _next: NextFunction) => {
     try {
-      const listings = await this.listingService.listBySeller(req.user!.id);
+      const listings = await this.listingService.listMyListings(req.user!.id);
       res.json({ listings });
     } catch (error) {
       console.error('ListingController.getMyListings error:', error);
@@ -77,6 +77,18 @@ export class ListingController {
   updateListing = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const { id } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify ownership
+      const existingListing = await this.listingService.getListingById(id);
+      if (!existingListing) {
+        return res.status(404).json({ message: 'Listing not found' });
+      }
+      
+      if ((existingListing as any).sellerId !== userId) {
+        return res.status(403).json({ message: 'You do not have permission to update this listing' });
+      }
+      
       const listing = await this.listingService.updateListing(id, req.body);
       res.json({ listing });
     } catch (error) {
@@ -88,6 +100,18 @@ export class ListingController {
   deleteListing = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const { id } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify ownership
+      const existingListing = await this.listingService.getListingById(id);
+      if (!existingListing) {
+        return res.status(404).json({ message: 'Listing not found' });
+      }
+      
+      if ((existingListing as any).sellerId !== userId) {
+        return res.status(403).json({ message: 'You do not have permission to delete this listing' });
+      }
+      
       await this.listingService.deleteListing(id);
       res.json({ message: 'Listing deleted successfully' });
     } catch (error) {

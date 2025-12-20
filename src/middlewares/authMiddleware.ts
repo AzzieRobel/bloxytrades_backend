@@ -15,13 +15,13 @@ export const attachRequestContext = (req: Request, _res: Response, next: NextFun
     return next();
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
-    req.user = { id: decoded.id };
-  } catch {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
+      req.user = { id: decoded.id };
+    } catch {
     // leave req.user undefined; requireAuth will enforce auth where needed
-    req.user = undefined;
+      req.user = undefined;
   }
   next();
 };
@@ -29,7 +29,7 @@ export const attachRequestContext = (req: Request, _res: Response, next: NextFun
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({ message: 'Unauthorized' });
-  }
+    }
   return next();
 };
 
