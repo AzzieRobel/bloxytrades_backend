@@ -16,6 +16,12 @@ const userSchema = new Schema({
   isVerifiedSeller: { type: Boolean, default: false, required: false },
   banReason: { type: String, required: false },
 
+  // Email Verification Fields
+  emailVerified: { type: Boolean, default: false, required: true },
+  emailVerificationToken: { type: String, required: false },
+  emailVerificationTokenExpires: { type: Date, required: false },
+  emailVerifiedAt: { type: Date, required: false },
+
   referralCode: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },
   lastLoginAt: { type: Date, required: false },

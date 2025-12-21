@@ -23,6 +23,7 @@
     "mongoose": "^9.0.1",
     "morgan": "^1.10.0",
     "paypal-rest-sdk": "^1.8.1",
+    "resend": "^6.6.0",
     "stripe": "^17.0.0",
     "uuid": "^13.0.0"
   },
