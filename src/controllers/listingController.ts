@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ListingService } from '../services/ListingService';
+import { validateImageUrl, sanitizeImageUrl } from '../utils/validateImageUrl';
 
 export class ListingController {
   private listingService: ListingService;
@@ -66,6 +67,17 @@ export class ListingController {
   createListing = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const payload = { ...req.body };
+      
+      // Security: Validate and sanitize imageUrl if provided
+      if (payload.imageUrl) {
+        if (!validateImageUrl(payload.imageUrl as string)) {
+          return res.status(400).json({ 
+            message: 'Invalid image URL. Only Cloudinary URLs are allowed.' 
+          });
+        }
+        payload.imageUrl = sanitizeImageUrl(payload.imageUrl as string);
+      }
+      
       const listing = await this.listingService.createListing(req.user!.id, payload);
       res.status(201).json({ listing });
     } catch (error) {
@@ -89,7 +101,19 @@ export class ListingController {
         return res.status(403).json({ message: 'You do not have permission to update this listing' });
       }
       
-      const listing = await this.listingService.updateListing(id, req.body);
+      const payload = { ...req.body };
+      
+      // Security: Validate and sanitize imageUrl if provided
+      if (payload.imageUrl) {
+        if (!validateImageUrl(payload.imageUrl as string)) {
+          return res.status(400).json({ 
+            message: 'Invalid image URL. Only Cloudinary URLs are allowed.' 
+          });
+        }
+        payload.imageUrl = sanitizeImageUrl(payload.imageUrl as string);
+      }
+      
+      const listing = await this.listingService.updateListing(id, payload);
       res.json({ listing });
     } catch (error) {
       console.error('ListingController.updateListing error:', error);
