@@ -3,11 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { generateReferralCode } from './referral';
 
-// Mockup data that looks like real Limiteds (unique names, prices, descriptions, quantities, and payment combos)
+// Mockup data that looks like real Limiteds (unique names, prices, quantities, and payment combos)
 const mockListings = [
   {
     itemName: "Dominus Astra",
-    description: "Ultra-rare limited Roblox hat. Own a galaxy on your head.",
     quantity: 2,
     price: { USD: 30550 },
     acceptedPayments: { stripe: true, paypal: false, crypto: true },
@@ -16,7 +15,6 @@ const mockListings = [
   },
   {
     itemName: "Rainbow Shaggy",
-    description: "The legendary Rainbow Shaggy. Stand out in every crowd!",
     quantity: 1,
     price: { USD: 16500 },
     acceptedPayments: { stripe: true, paypal: true, crypto: false },
@@ -25,7 +23,6 @@ const mockListings = [
   },
   {
     itemName: "Valkyrie Helm",
-    description: "Classic and iconic Valkyrie Helm. True Robloxian status.",
     quantity: 5,
     price: { USD: 8700 },
     acceptedPayments: { stripe: false, paypal: true, crypto: true },
@@ -34,7 +31,6 @@ const mockListings = [
   },
   {
     itemName: "PLAYFUL VAMPIRE",
-    description: "Playful Vampire face. A classic expression for elite traders.",
     quantity: 3,
     price: { USD: 4100 },
     acceptedPayments: { stripe: true, paypal: false, crypto: false },
@@ -43,7 +39,6 @@ const mockListings = [
   },
   {
     itemName: "Dominus Empyreus",
-    description: "The most sought-after Dominus. Absolute flex for collectors.",
     quantity: 1,
     price: { USD: 85000 },
     acceptedPayments: { stripe: true, paypal: true, crypto: true },
@@ -52,7 +47,6 @@ const mockListings = [
   },
   {
     itemName: "Blackvalk",
-    description: "Ultra-rare Blackvalk. Limited edition velvet style.",
     quantity: 2,
     price: { USD: 39500 },
     acceptedPayments: { stripe: false, paypal: true, crypto: false },
@@ -61,7 +55,6 @@ const mockListings = [
   },
   {
     itemName: "Blue Sparkle Time Fedora",
-    description: "Shine bright with the Blue Sparkle Time Fedora. Prestigious and flashy.",
     quantity: 1,
     price: { USD: 15700 },
     acceptedPayments: { stripe: true, paypal: false, crypto: true },
@@ -70,7 +63,6 @@ const mockListings = [
   },
   {
     itemName: "Red Tango",
-    description: "Attract attention with the rare Red Tango mask.",
     quantity: 2,
     price: { USD: 6700 },
     acceptedPayments: { stripe: true, paypal: true, crypto: false },
@@ -79,7 +71,6 @@ const mockListings = [
   },
   {
     itemName: "Purple Indie",
-    description: "Unique Indie shades for those who love purple.",
     quantity: 3,
     price: { USD: 1500 },
     acceptedPayments: { stripe: false, paypal: true, crypto: true },
@@ -88,7 +79,6 @@ const mockListings = [
   },
   {
     itemName: "Classic Fedora",
-    description: "OG Classic Fedora. A trader’s classic staple.",
     quantity: 10,
     price: { USD: 3600 },
     acceptedPayments: { stripe: true, paypal: true, crypto: false },
@@ -97,7 +87,6 @@ const mockListings = [
   },
   {
     itemName: "Brighteyes' Top Hat",
-    description: "Highly popular top hat, often seen on the best traders.",
     quantity: 5,
     price: { USD: 2100 },
     acceptedPayments: { stripe: false, paypal: true, crypto: false },
@@ -106,7 +95,6 @@ const mockListings = [
   },
   {
     itemName: "Midnight Blue Sparkle Time Fedora",
-    description: "Sparkle in Midnight Blue. Among the rarest fedoras.",
     quantity: 2,
     price: { USD: 20999 },
     acceptedPayments: { stripe: true, paypal: true, crypto: true },
@@ -115,7 +103,6 @@ const mockListings = [
   },
   {
     itemName: "Red Domino Crown",
-    description: "Legendary Red Domino Crown, limited supply, huge demand.",
     quantity: 1,
     price: { USD: 58000 },
     acceptedPayments: { stripe: true, paypal: false, crypto: true },
@@ -124,7 +111,6 @@ const mockListings = [
   },
   {
     itemName: "Green Sparkle Time Fedora",
-    description: "Vivid green sparkle on a classic fedora.",
     quantity: 4,
     price: { USD: 12600 },
     acceptedPayments: { stripe: false, paypal: true, crypto: true },
@@ -133,7 +119,6 @@ const mockListings = [
   },
   {
     itemName: "Ghostwalker",
-    description: "Ghostwalker sword. Perfect for sword fighting games.",
     quantity: 8,
     price: { USD: 420 },
     acceptedPayments: { stripe: true, paypal: true, crypto: true },
@@ -142,7 +127,6 @@ const mockListings = [
   },
   {
     itemName: "Antlers of the Federation",
-    description: "Majestic silver antlers from the Federation series.",
     quantity: 2,
     price: { USD: 6700 },
     acceptedPayments: { stripe: false, paypal: false, crypto: true },
@@ -151,7 +135,6 @@ const mockListings = [
   },
   {
     itemName: "Yum!",
-    description: "YUM face—a favorite among traders.",
     quantity: 2,
     price: { USD: 6100 },
     acceptedPayments: { stripe: true, paypal: true, crypto: true },
@@ -160,7 +143,6 @@ const mockListings = [
   },
   {
     itemName: "Supa Dupa Fly Cap",
-    description: "Classic Supa Dupa cap. Always in style.",
     quantity: 6,
     price: { USD: 580 },
     acceptedPayments: { stripe: false, paypal: false, crypto: true },
