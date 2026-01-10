@@ -1,40 +1,27 @@
-import { stripe } from '../config/stripe';
-import { paypal } from '../config/paypal';
-import { cryptoProcessorConfig } from '../config/cryptoProcessor';
 
 export const createPaymentIntent = async (amount: number, currency = 'USD') => {
-  if (!stripe) {
-    throw new Error('Stripe is not configured');
-  }
-  return stripe.paymentIntents.create({
-    amount: Math.round(amount * 100),
-    currency
-  });
+  return {
+    provider: 'stripe',
+    amount,
+    currency,
+    checkoutUrl: 'https://stripe.example/checkout'
+  };
 };
 
 export const createPaypalPayment = async (amount: number, currency = 'USD') => {
   return new Promise<unknown>((resolve, reject) => {
-    paypal.payment.create(
-      {
-        intent: 'sale',
-        payer: { payment_method: 'paypal' },
-        transactions: [{ amount: { total: amount.toFixed(2), currency } }],
-        redirect_urls: {
-          return_url: 'https://example.com/success',
-          cancel_url: 'https://example.com/cancel'
-        }
-      },
-      (error: unknown, payment: unknown) => {
-        if (error) reject(error);
-        else resolve(payment);
-      }
-    );
+    return {
+      provider: 'paypal',
+      amount,
+      currency,
+      checkoutUrl: 'https://paypal.example/checkout'
+    };
   });
 };
 
 export const createCryptoCharge = async (amount: number, currency = 'USD') => {
   return {
-    provider: cryptoProcessorConfig.provider,
+    provider: 'crypto-processor',
     amount,
     currency,
     checkoutUrl: 'https://crypto.example/checkout'

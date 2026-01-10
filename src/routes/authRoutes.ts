@@ -7,7 +7,8 @@ const router = Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.post('/google', authController.googleLogin);
+router.post('/googleLogin', authController.googleLogin);
+router.get('/googleAuth', authController.googleAuth);
 router.post('/refresh', authController.refreshSession);
 
 // Email Verification Routes

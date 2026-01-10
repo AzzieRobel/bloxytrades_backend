@@ -6,6 +6,7 @@ import { AdminController } from './adminController';
 import { SellerController } from './sellerController';
 import { BuyerController } from './buyerController';
 import { OrderController } from './orderController';
+import { RobloxAssetsController } from './robloxAssetsController';
 
 const userController = new UserController();
 const authController = new AuthController();
@@ -15,6 +16,7 @@ const adminController = new AdminController();
 const sellerController = new SellerController();
 const buyerController = new BuyerController();
 const orderController = new OrderController();
+const robloxAssetsController = new RobloxAssetsController();
 
 export {
   userController,
@@ -24,5 +26,6 @@ export {
   adminController,
   sellerController,
   buyerController,
-  orderController
+  orderController,
+  robloxAssetsController,
 };

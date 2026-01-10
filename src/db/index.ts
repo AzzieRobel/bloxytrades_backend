@@ -2,11 +2,11 @@ import Mongoose from "mongoose";
 import { config } from "../config";
 import { Listing } from "../models/Listing";
 
-const { mongodbUri } = config;
+const { serverConfig } = config;
 
 export const dbConnect = async () => {
     try {
-        await Mongoose.connect(mongodbUri);
+        await Mongoose.connect(serverConfig.mongodbUri);
         console.log('Connected to MongoDB successfully');
 
         // Ensure important indexes exist (id + createdAt based pagination)

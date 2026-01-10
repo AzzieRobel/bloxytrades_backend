@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 
 import { config } from '../config';
 
+const { serverConfig } = config;
+
 declare module 'express-serve-static-core' {
   interface Request {
     user?: { id: string };
@@ -17,7 +19,7 @@ export const attachRequestContext = (req: Request, _res: Response, next: NextFun
 
     const token = authHeader.split(' ')[1];
     try {
-      const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
+      const decoded = jwt.verify(token, serverConfig.jwtSecret) as { id: string };
       req.user = { id: decoded.id };
     } catch {
     // leave req.user undefined; requireAuth will enforce auth where needed

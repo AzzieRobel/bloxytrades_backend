@@ -9,13 +9,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "google-auth-library": "^9.14.0",
+    "googleapis": "^169.0.0",
     "helmet": "^7.1.0",
     "hpp": "^0.2.3",
     "http-errors": "^2.0.0",
@@ -28,12 +31,13 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
+    "@types/hpp": "^0.2.3",
     "@types/http-errors": "^2.0.4",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/hpp": "^0.2.3",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.9.0",
     "ts-node": "^10.9.2",

@@ -2,7 +2,7 @@
  * Email Verification Types and Interfaces
  */
 
-export interface EmailVerificationTokenPayload {
+interface EmailVerificationTokenPayload {
   userId: string;
   type: 'email-verification';
   id: string;
@@ -10,29 +10,35 @@ export interface EmailVerificationTokenPayload {
   exp?: number;
 }
 
-export interface VerificationResult {
+interface VerificationResult {
   success: boolean;
   userId?: string;
   error?: string;
 }
 
-export interface SendEmailResult {
+interface SendEmailResult {
   success: boolean;
   id?: string;
   error?: string;
 }
 
-export interface EmailVerificationConfig {
+interface EmailVerificationConfig {
   tokenExpiresIn: string;
   frontendUrl: string;
   fromEmail: string;
   fromName: string;
 }
 
-export interface VerificationEmailData {
+interface VerificationEmailData {
   email: string;
   username: string;
   verificationToken: string;
   verificationUrl: string;
 }
 
+interface SendEmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}

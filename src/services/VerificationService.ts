@@ -1,9 +1,58 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
+import { Resend } from 'resend';
 import { config } from '../config';
 import { userDataAccess } from '../data-access';
-import { sendVerificationEmail } from './emailService';
-import type { VerificationResult, EmailVerificationTokenPayload } from '../@types/emailVerification';
+import { getVerificationEmailTemplate } from '../templates';
+
+const { serverConfig, emailConfig } = config;
+
+interface VerificationResult {
+  success: boolean;
+  userId?: string;
+  error?: string;
+}
+
+interface EmailVerificationTokenPayload {
+  userId: string;
+  type: string;
+  id: string;
+  iat?: number;
+  exp?: number;
+}
+
+/**
+ * Send verification email using Resend
+ */
+async function sendVerificationEmail(email: string, username: string, token: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!emailConfig.resendApiKey) {
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    const resend = new Resend(emailConfig.resendApiKey);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const verificationUrl = `${frontendUrl}/auth/verify-email/${token}`;
+    
+    const { subject, html } = getVerificationEmailTemplate(verificationUrl, username);
+    
+    const result = await resend.emails.send({
+      from: emailConfig.resendFromEmail || 'noreply@bloxytrades.com',
+      to: email,
+      subject,
+      html,
+    });
+
+    if (result.error) {
+      return { success: false, error: result.error.message || 'Failed to send email' };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('sendVerificationEmail error:', error);
+    return { success: false, error: error.message || 'Failed to send verification email' };
+  }
+}
 
 export class VerificationService {
   /**
@@ -11,18 +60,19 @@ export class VerificationService {
    */
   async generateVerificationToken(userId: string): Promise<string> {
     const tokenId = uuid();
+    const signOptions: SignOptions = { expiresIn: serverConfig.jwtExpiresIn as SignOptions['expiresIn'] };
     const token = jwt.sign(
       { userId, type: 'email-verification', id: tokenId },
-      config.jwtSecret as string,
-      { expiresIn: config.emailVerificationTokenExpiresIn }
+      serverConfig.jwtSecret as string,
+      signOptions
     );
-    
+
     // Calculate expiration date (24 hours from now)
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    await userDataAccess.update(
-      { id: userId } as any,
+    await userDataAccess.updateById(
+      userId,
       {
         emailVerificationToken: token,
         emailVerificationTokenExpires: expiresAt,
@@ -37,8 +87,8 @@ export class VerificationService {
    */
   async verifyToken(token: string): Promise<VerificationResult> {
     try {
-      const decoded = jwt.verify(token, config.jwtSecret as string) as EmailVerificationTokenPayload;
-      
+      const decoded = jwt.verify(token, serverConfig.jwtSecret as string) as EmailVerificationTokenPayload;
+
       if (decoded.type !== 'email-verification') {
         return { success: false, error: 'Invalid token type' };
       }
@@ -63,7 +113,7 @@ export class VerificationService {
       }
 
       // Mark email as verified
-      await userDataAccess.update(
+      await userDataAccess.findOneAndUpdate(
         { id: decoded.userId } as any,
         {
           emailVerified: true,
@@ -108,4 +158,3 @@ export class VerificationService {
     return { success: true, userId };
   }
 }
-

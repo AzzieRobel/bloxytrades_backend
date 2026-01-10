@@ -1,30 +1,35 @@
 import { Schema, model } from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
 
 const userSchema = new Schema({
-  id: { type: String, required: true, unique: true, default: () => uuidv4() },
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
+  id: { type: String, unique: true, index: true },
+  username: { type: String, unique: true, sparse: true, index: true },
+  email: { type: String, unique: true, sparse: true, index: true },
 
-  passwordHash: { type: String, required: true },
+  passwordHash: String,
+  googleId: { type: String, unique: true, sparse: true, index: true },
 
-  robloxUserId: { type: String, required: false, unique: true },
-  robloxUsername: { type: String, required: false },
-  robloxVerifiedAt: { type: Date, required: false },
+  robloxUserId: String,
+  robloxUsername: String,
+  robloxVerifiedAt: Date,
 
-  isBanned: { type: Boolean, default: false, required: false },
-  isVerifiedSeller: { type: Boolean, default: false, required: false },
-  banReason: { type: String, required: false },
+  isBanned: Boolean,
+  isVerifiedSeller: Boolean,
+  banReason: String,
 
   // Email Verification Fields
-  emailVerified: { type: Boolean, default: false, required: true },
-  emailVerificationToken: { type: String, required: false },
-  emailVerificationTokenExpires: { type: Date, required: false },
-  emailVerifiedAt: { type: Date, required: false },
+  emailVerified: Boolean,
+  emailVerificationToken: String,
+  emailVerificationTokenExpires: Date,
+  emailVerifiedAt: Date,
 
-  referralCode: { type: String, required: true, unique: true },
-  createdAt: { type: Date, default: Date.now },
-  lastLoginAt: { type: Date, required: false },
+  referralCode: String,
+  createdAt: Date,
+  lastLoginAt: Date,
+
+  // Google OAuth fields
+  googleAccessToken: String,
+  googleRefreshToken: String,
+  googleTokenExpiry: Date,
 });
 
 export const Users = model('Users', userSchema);

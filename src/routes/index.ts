@@ -9,6 +9,7 @@ import disputeRoutes from "./disputeRoutes";
 import adminRoutes from "./adminRoutes";
 import paymentRoutes from "./paymentRoutes";
 import authRoutes from "./authRoutes";
+import robloxRoutes from "./robloxRoutes";
 
 const router = Router()
 
@@ -21,5 +22,6 @@ router.use('/orders', orderRoutes);
 router.use('/disputes', disputeRoutes);
 router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/roblox', robloxRoutes);
 
 export default router;
