@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { userService, emailService, googleAuthService } from '../services';
+import { userService, emailService, googleAuthService, robloxVerificationService, robloxOpenCloudService } from '../services';
 
 export class UserController {
   public getProfile = async (req: Request, res: Response, _next: NextFunction) => {
@@ -131,15 +131,71 @@ export class UserController {
       if (!robloxUserId || !robloxUsername) {
         return res.status(400).json({ message: 'Roblox User ID and Username are required' });
       }
+
+      // Verify account
+      const verification = await robloxVerificationService.verifyAccount(
+        robloxUserId,
+        robloxUsername
+      );
+
+      if (!verification.isValid) {
+        return res.status(400).json({ 
+          message: verification.error || 'Failed to verify Roblox account' 
+        });
+      }
+
+      // Update user with verified account
       const user = await userService.updateProfile(req.user!.id, {
         robloxUserId,
-        robloxUsername,
+        robloxUsername: verification.verifiedUsername || robloxUsername,
         robloxVerifiedAt: new Date(),
       });
+
       res.status(200).json({ user });
     } catch (error) {
       console.error('UserController.connectRoblox error:', error);
       res.status(500).json({ message: 'Failed to connect Roblox account' });
+    }
+  };
+
+  public getMyRobloxAssets = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const user = await userService.getProfile(req.user!.id);
+      
+      if (!user.robloxUserId || !user.robloxVerifiedAt) {
+        return res.status(400).json({ 
+          message: 'Roblox account not connected or verified. Please connect your Roblox account first.' 
+        });
+      }
+
+      const limit = Number(req.query.limit) || 50;
+      const cursor = req.query.cursor as string | undefined;
+      const assetTypeId = Number(req.query.assetTypeId) || 1; // Default to Image assets (Limiteds)
+
+      console.log(`Fetching inventory for user ${user.robloxUserId}, assetTypeId: ${assetTypeId}`);
+
+      const inventory = await robloxOpenCloudService.getUserInventory(
+        user.robloxUserId,
+        assetTypeId,
+        limit,
+        cursor
+      );
+
+      console.log(`Found ${inventory.assets.length} assets`);
+
+      res.json({
+        assets: inventory.assets,
+        nextCursor: inventory.nextCursor
+      });
+    } catch (error: any) {
+      console.error('Error fetching Roblox assets:', error);
+      const statusCode = error.message?.includes('private') ? 403 
+        : error.message?.includes('not found') ? 404 
+        : 500;
+      
+      res.status(statusCode).json({ 
+        message: error.message || 'Failed to fetch Roblox assets' 
+      });
     }
   };
 }
