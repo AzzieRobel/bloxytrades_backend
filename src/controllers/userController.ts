@@ -125,6 +125,10 @@ export class UserController {
     }
   }
 
+  /**
+   * Legacy endpoint - kept for backward compatibility
+   * @deprecated Use profile verification endpoints instead
+   */
   public connectRoblox = async (req: Request, res: Response, _next: NextFunction) => {
     try {
       const { robloxUserId, robloxUsername } = req.body;
@@ -155,6 +159,128 @@ export class UserController {
     } catch (error) {
       console.error('UserController.connectRoblox error:', error);
       res.status(500).json({ message: 'Failed to connect Roblox account' });
+    }
+  };
+
+  /**
+   * Initialize Roblox profile verification
+   * POST /users/roblox/verify/initiate
+   */
+  public initiateRobloxVerification = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const { robloxUsername } = req.body;
+      
+      if (!robloxUsername || !robloxUsername.trim()) {
+        return res.status(400).json({ 
+          message: 'Roblox username is required' 
+        });
+      }
+
+      const result = await robloxVerificationService.initiateVerification(
+        req.user!.id,
+        robloxUsername.trim()
+      );
+
+      res.json({
+        verificationId: result.verificationId,
+        verificationCode: result.verificationCode,
+        robloxUserId: result.robloxUserId,
+        expiresAt: result.expiresAt,
+        instructions: `Please copy the code "${result.verificationCode}" and paste it into your Roblox profile "About" section, then click Verify.`
+      });
+    } catch (error: any) {
+      console.error('Initiate verification error:', error);
+      res.status(400).json({ 
+        message: error.message || 'Failed to initiate verification' 
+      });
+    }
+  };
+
+  /**
+   * Verify the code in Roblox profile
+   * POST /users/roblox/verify/check
+   */
+  public verifyRobloxCode = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const { verificationId } = req.body;
+      
+      if (!verificationId) {
+        return res.status(400).json({ 
+          message: 'Verification ID is required' 
+        });
+      }
+
+      const result = await robloxVerificationService.verifyCode(
+        verificationId,
+        req.user!.id
+      );
+
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: result.error || 'Verification failed' 
+        });
+      }
+
+      // Link the Roblox account to user
+      const user = await userService.updateProfile(req.user!.id, {
+        robloxUserId: result.robloxUserId!,
+        robloxUsername: result.robloxUsername!,
+        robloxVerifiedAt: new Date(),
+      });
+
+      res.json({ 
+        success: true,
+        message: 'Roblox account verified and connected successfully!',
+        user 
+      });
+    } catch (error: any) {
+      console.error('Verify code error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to verify code' 
+      });
+    }
+  };
+
+  /**
+   * Get pending verification for current user
+   * GET /users/roblox/verify/pending
+   */
+  public getPendingRobloxVerification = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const pending = await robloxVerificationService.getPendingVerification(req.user!.id);
+      
+      if (!pending) {
+        return res.json({ pending: null });
+      }
+
+      res.json({ pending });
+    } catch (error) {
+      console.error('Get pending verification error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+  /**
+   * Cancel pending verification
+   * POST /users/roblox/verify/cancel
+   */
+  public cancelRobloxVerification = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+      const { verificationId } = req.body;
+      
+      if (!verificationId) {
+        return res.status(400).json({ message: 'Verification ID is required' });
+      }
+
+      await robloxVerificationService.cancelVerification(
+        verificationId,
+        req.user!.id
+      );
+
+      res.json({ message: 'Verification cancelled' });
+    } catch (error) {
+      console.error('Cancel verification error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   };
 
